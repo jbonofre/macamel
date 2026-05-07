@@ -10,6 +10,7 @@ import jakarta.inject.Named;
 import jakarta.jms.ConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.camel.component.jms.JmsComponent;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.springframework.jms.support.destination.DestinationResolver;
 
@@ -37,9 +38,7 @@ public class MQConfig {
         }
         return factory;
     }
-    @Produces
-    @Named("ibmMQDestinationResolver")
-    public DestinationResolver createIBMMQDestinationResolver() {
+    private DestinationResolver createIBMMQDestinationResolver() {
         return (session, destinationName, pubSubDomain) -> {
             jakarta.jms.Queue queue = session.createQueue(destinationName);
             ((MQDestination) queue).setIntProperty(WMQConstants.WMQ_TARGET_CLIENT, 1);
@@ -62,6 +61,25 @@ public class MQConfig {
         redeliveryPolicy.setRedeliveryDelay(10000);
         redeliveryPolicy.setUseExponentialBackOff(false);
         return factory;
+    }
+
+    @Produces
+    @Named("activemq-in")
+    public JmsComponent activeMQInComponent(
+            @Identifier("activeMQConsumerConnectionFactory") ActiveMQConnectionFactory factory) {
+        JmsComponent component = new JmsComponent();
+        component.setConnectionFactory(factory);
+        return component;
+    }
+
+    @Produces
+    @Named("ibmmq-out")
+    public JmsComponent ibmMQOutComponent(
+            @Identifier("ibmMQMFConnectionFactory") ConnectionFactory factory) {
+        JmsComponent component = new JmsComponent();
+        component.setConnectionFactory(factory);
+        component.setDestinationResolver(createIBMMQDestinationResolver());
+        return component;
     }
 
 }
