@@ -43,6 +43,10 @@
             <groupId>org.apache.camel.quarkus</groupId>
             <artifactId>camel-quarkus-jms</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-management</artifactId>
+        </dependency>
         <!-- libraries -->
         <dependency>
             <groupId>com.ibm.mq</groupId>
